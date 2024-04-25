@@ -7,8 +7,9 @@ import time
 import config
 import os
 import glob
+import json
 
-from fwc_gov_au import download_documents
+from fairwork_gov_au import download_documents
 
 def clear_download_directory():
     files = glob.glob(config.download_directory + '/*')
@@ -22,10 +23,22 @@ try:
     chrome_options = Options()
     chrome_options.add_experimental_option("prefs", {
         "download.default_directory": config.download_directory,
+        "savefile.default_directory": config.download_directory,
         "download.prompt_for_download": False,
         "download.directory_upgrade": True,
-        "safebrowsing.enabled": True
+        "safebrowsing.enabled": True,
+        "printing.print_preview_sticky_settings.appState": json.dumps({
+            "recentDestinations": [{
+                "id": "Save as PDF",
+                "origin": "local",
+                "account": ""
+            }],
+            "selectedDestinationId": "Save as PDF",
+            "version": 2
+        })
     })
+    # chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--kiosk-printing')
     driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=chrome_options)
     
     clear_download_directory()

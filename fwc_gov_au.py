@@ -2,10 +2,9 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 import time
-import config
-import os
-import glob
-import shutil
+
+from helpers import save_downloaded_document, wait_for_download
+
 
 
 def download_documents(driver: webdriver.Chrome, page: int, pagesize: int):
@@ -23,7 +22,7 @@ def download_documents(driver: webdriver.Chrome, page: int, pagesize: int):
             result.find_element(By.LINK_TEXT, "Download").click()
             time.sleep(3)
             wait_for_download()
-            save_downloaded_document(title)            
+            save_downloaded_document(title, 'fwc')            
 
     except Exception as e:
         print(e)
@@ -32,33 +31,3 @@ def download_documents(driver: webdriver.Chrome, page: int, pagesize: int):
         time.sleep(5)
         return total_pages
     
-
-def wait_for_download():
-    download_directory = config.download_directory
-    timeout = config.download_timeout
-
-    while timeout > 0:
-        if any(filename.endswith(".crdownload") for filename in os.listdir(download_directory)):
-            time.sleep(1)
-            timeout -= 1
-        else:
-            break
-    pass
-
-def save_downloaded_document(name: str):
-    download_directory = config.download_directory
-    save_directory = config.save_directory + '/fwc'
-
-    # Create the save directory if it does not exist
-    if not os.path.exists(save_directory):
-        os.makedirs(save_directory)
-
-    # Move the downloaded file (not directory) to the save directory
-    files = glob.glob(download_directory + '/*')
-    for f in files:
-        if os.path.isfile(f):
-            file = f
-            ext = file.split('.')[-1]
-            shutil.move(file, save_directory + '/' + name + '.' + ext)
-
-    pass
