@@ -8,6 +8,9 @@ import config
 import os
 import glob
 import json
+import fwc_gov_au
+from scrape_pdf_links import scrape_all_pdfs_in_page
+from scrape_links_tree_view import scrape_links_in_tree_view
 
 from fairwork_gov_au import download_documents
 
@@ -18,7 +21,8 @@ def clear_download_directory():
           os.remove(f)
 
 try:
-        
+    if not os.path.exists(config.download_directory):
+        os.makedirs(config.download_directory)
     # Configure Chrome WebDriver options
     chrome_options = Options()
     chrome_options.add_experimental_option("prefs", {
@@ -43,15 +47,22 @@ try:
     
     clear_download_directory()
     
-    pagesize = 10
-    page = 1
-    total_pages = page
-    max_pages = 2
+    #scrape_all_pdfs_in_page(driver, "https://www.fwc.gov.au/hearings-decisions/decisions-and-orders/significant-decisions-and-summaries")
 
-    while page <= total_pages and page <= max_pages:
-      total_pages = download_documents(driver, page, pagesize)
-      page += 1
-      time.sleep(1)
+    # pagesize = 10
+    # page = 1
+    # total_pages = page
+    # max_pages = 5
+
+    # while page <= total_pages and page <= max_pages:
+    #   total_pages = fwc_gov_au.download_documents(driver, page, pagesize)
+    #   page += 1
+    #   time.sleep(1)
+
+    links = scrape_all_pdfs_in_page(driver, 'https://www.fairwork.gov.au/tools-and-resources/best-practice-guides', True, 
+                                    'a[data-entity-substitution=canonical]',
+                                    lambda x: x.find('https://www.fairwork.gov.au/tools-and-resources/best-practice-guides/') >= 0)
+    print(links)
     
 except Exception as e:
     print(e)

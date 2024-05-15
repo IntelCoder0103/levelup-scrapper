@@ -3,6 +3,7 @@ import os
 import glob
 import shutil
 import time
+import json
 
 def wait_for_download():
     download_directory = config.download_directory
@@ -44,4 +45,29 @@ def save_downloaded_document(name: str, subdirectory: str = ''):
             ext = file.split('.')[-1]
             shutil.move(file, save_directory + '/' + name + '.' + ext)
 
+    pass
+
+def already_downloaded(name: str, subdirectory: str = ''):
+    save_directory = os.path.join(config.save_directory, subdirectory)
+    files = glob.glob(os.path.join(save_directory, '*'))
+    for f in files:
+        if os.path.isfile(f):
+            file = f
+            if file.find(name) >= 0:
+                return True
+    return False
+
+def appendJsonArray(jsonArray, filename):
+    filepath = os.path.join(config.save_directory, filename)
+    
+    try:
+        with open(filepath, 'r') as f:
+            old_data = json.load(f)
+    except Exception as e:
+        old_data = []
+    
+    old_data.extend(jsonArray)
+    
+    with open(filepath, 'w') as f:
+        f.write(json.dumps(old_data, indent=4))
     pass
